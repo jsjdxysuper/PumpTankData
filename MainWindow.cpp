@@ -9,15 +9,20 @@
 using namespace std;
 
 
-QString patterModulesData = "<div class=\"b-wiki-panel\"><div class=\"b-modules\"><div class=\"b-modules_header\"><img src=\"http://wikicdn\\.wargaming\\.net/images/c/ca/Module_wot_turret\\.png\" alt=\"turret\" class=\"b-modules_img\"><img src=\"http://wikicdn\\.wargaming\\.net/images/8/8f/Module_wot_gun\\.png\" alt=\"img\" class=\"b-modules_img b-modules_img__small\">[^\r\n]+";
-QString splitEachModuleData = "<table class=\"t-modules\">.*</table>";
+QString ALLMODULETEXTPATTERN = "<div class=\"b-wiki-panel\"><div class=\"b-modules\"><div class=\"b-modules_header\"><img src=\"http://wikicdn\\.wargaming\\.net/images/c/ca/Module_wot_turret\\.png\" alt=\"turret\" class=\"b-modules_img\"><img src=\"http://wikicdn\\.wargaming\\.net/images/8/8f/Module_wot_gun\\.png\" alt=\"img\" class=\"b-modules_img b-modules_img__small\">[^\r\n]+";
+QString SPLITEACHMODULEPATTERN = "<table class=\"t-modules\">.*</table>";
+
+QString TOPHPPATTERN = "\\d+(?=</span><span style=\"color:gray\"> HP</span> </span><span class=\"t-performance_left\"> Hit Points)";
+QString STOCKHPPATTERN="\\d+(?=</span><span class=\"top\">\\d+</span><span style=\"color:gray\"> HP</span> </span><span class=\"t-performance_left\"> Hit Points)";
+QString UPANGLEATTERN = "\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
+QString DOWNANGLEATTERN ="\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span>/\\+\\d+<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
 //总的函数，负责从网上获得文本
 //
 void MainWindow::getDataFromWeb()
 {
 
-    QString webText = getWebText();
-    setAllModulesData(webText);
+    setWebText();
+    setAllModulesData();
     setEveryModuleData();
 
     qDebug()<<QString("炮塔");
@@ -31,10 +36,59 @@ void MainWindow::getDataFromWeb()
     qDebug()<<QString("履带");
     qDebug()<<suspensions;
 
+    setTankPara();
 }
 
 void MainWindow::setTankPara()
-{}
+{
+    //获取顶级生命值
+    qDebug()<<TOPHP;
+    QRegExp rx(TOPHPPATTERN);
+    int pos = webText.indexOf(rx);
+    //qDebug()<<rx.capturedTexts();
+    if(pos>=0)
+    {
+        QStringList temp = rx.capturedTexts();
+        QString topHP = temp.takeFirst();
+        tankParameter[TOPHP] = topHP;
+        //qDebug()<<allModulesText;
+        printSomething(tankParameter[TOPHP]);
+    }
+    //获取坦克初始生命值
+    rx.setPattern(STOCKHPPATTERN);
+    pos = webText.indexOf(rx);
+    qDebug()<<STOCKHPPATTERN;
+    if(pos>=0)
+    {
+        QStringList temp = rx.capturedTexts();
+        QString stockHP = temp.takeFirst();
+        tankParameter[STOCKHP]=stockHP;
+        printSomething(tankParameter[STOCKHP]);
+
+    }
+    //获取坦克仰角
+    rx.setPattern(UPANGLEATTERN);
+    pos = webText.indexOf(rx);
+    qDebug()<<UPANGLEATTERN;
+    QString up_angle;
+    if(pos>=0)
+    {
+        QStringList temp = rx.capturedTexts();
+        up_angle = temp.takeFirst();
+    }
+    //获取坦克俯角
+    rx.setPattern(DOWNANGLEATTERN);
+    pos = webText.indexOf(rx);
+    qDebug()<<DOWNANGLEATTERN;
+    QString down_angle;
+    if(pos>=0)
+    {
+        QStringList temp = rx.capturedTexts();
+        down_angle = temp.takeFirst();
+    }
+    tankParameter[UP_DOWN_ANGLE]=up_angle+"\\"+down_angle;
+    printSomething(tankParameter[UP_DOWN_ANGLE]);
+}
 void MainWindow::writeIntoFile()
 {
     QString outputFile;
@@ -45,7 +99,7 @@ void MainWindow::writeIntoFile()
     //out<<outputText<<endl;
 }
 //获得某种坦克的整个网页的源代码，以返回值的形式返回
-QString MainWindow::getWebText()
+void MainWindow::setWebText()
 {
     QString webStr;
     webStr = ui->lineEditWebsite->text();
@@ -59,17 +113,16 @@ QString MainWindow::getWebText()
     QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     //开启子事件循环
     loop.exec();
-    QString outputText = reply->readAll();
 
-    return outputText;
+    webText = reply->readAll();
 }
 //获得含有坦克所有配件参数文本块，存入allModulesText类属性里面
-void MainWindow::setAllModulesData(QString theWebText)
+void MainWindow::setAllModulesData()
 {
-    QString pattern=patterModulesData;
+    QString pattern=ALLMODULETEXTPATTERN;
     //qDebug()<<pattern;
     QRegExp rx(pattern);
-    int pos = theWebText.indexOf(rx);
+    int pos = webText.indexOf(rx);
     //qDebug()<<rx.capturedTexts();
     if(pos>=0)
     {
@@ -85,11 +138,11 @@ void MainWindow::setAllModulesData(QString theWebText)
 void MainWindow::setEveryModuleData()
 {
 
-    QRegExp rx(splitEachModuleData);
+    QRegExp rx(SPLITEACHMODULEPATTERN);
     rx.setMinimal(true);
     int pos = allModulesText.indexOf(rx);
 
-    QSet<QString> allResults = getAllMatchResults(allModulesText,splitEachModuleData);
+    QSet<QString> allResults = getAllMatchResults(allModulesText,SPLITEACHMODULEPATTERN);
     QSet<QString>::iterator iter = allResults.begin();
     while(iter!= allResults.end())
     {

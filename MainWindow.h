@@ -3,6 +3,10 @@
 #include "ui_formpumptankdata.h"
 #include <QMainWindow>
 
+enum  TankPara{TANKNAME,GRADE,NATION,EXPERIENCE,COST,TYPE,
+               UP_DOWN_ANGLE,LEFT_RIGHT_ANGLE,SPEED,THRUST_WEIGHT_RATIO,
+               ARMOR,STOCKHP,TOPHP,CAMOUFLAGE,IS_GOLD_TANK,CLASSIFIED_GRADE
+              };
 class MainWindow:public QMainWindow
 {
     Q_OBJECT
@@ -21,8 +25,9 @@ public:
     void printSomething(QString str);
 private:
     Ui::FormPumpTankData *ui;
+    QString webText;
     QString allModulesText;
-    QStringList tankParameter;
+    QString tankParameter[16];
 
 
     QMap<QString,QStringList> turrets;
@@ -34,9 +39,9 @@ private:
 public:
 
     //获得某种坦克的整个网页的源代码，以返回值的形式返回
-    QString getWebText();
+    void setWebText();
     //获得含有坦克所有配件参数文本块，存入allModulesText类属性里面
-    void setAllModulesData(QString theWebText);
+    void setAllModulesData();
 
     //用table分割坦克不同模块
     //调用getAllMatchResults函数，把坦克的不同模块的文本放入QSet<QString>结构中
