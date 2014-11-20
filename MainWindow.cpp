@@ -11,7 +11,8 @@ using namespace std;
 
 QString patterModulesData = "<div class=\"b-wiki-panel\"><div class=\"b-modules\"><div class=\"b-modules_header\"><img src=\"http://wikicdn\\.wargaming\\.net/images/c/ca/Module_wot_turret\\.png\" alt=\"turret\" class=\"b-modules_img\"><img src=\"http://wikicdn\\.wargaming\\.net/images/8/8f/Module_wot_gun\\.png\" alt=\"img\" class=\"b-modules_img b-modules_img__small\">[^\r\n]+";
 QString splitEachModuleData = "<table class=\"t-modules\">.*</table>";
-
+//总的函数，负责从网上获得文本
+//
 void MainWindow::getDataFromWeb()
 {
 
@@ -19,6 +20,16 @@ void MainWindow::getDataFromWeb()
     setAllModulesData(webText);
     setEveryModuleData();
 
+    qDebug()<<QString("炮塔");
+    qDebug()<<turrets;
+    qDebug()<<QString("火炮");
+    qDebug()<<guns;
+    qDebug()<<QString("发动机");
+    qDebug()<<engines;
+    qDebug()<<QString("无线电");
+    qDebug()<<radios;
+    qDebug()<<QString("履带");
+    qDebug()<<suspensions;
 
 }
 
@@ -33,7 +44,7 @@ void MainWindow::writeIntoFile()
     QTextStream out(&file);
     //out<<outputText<<endl;
 }
-//获得网页的源代码
+//获得某种坦克的整个网页的源代码，以返回值的形式返回
 QString MainWindow::getWebText()
 {
     QString webStr;
@@ -52,7 +63,7 @@ QString MainWindow::getWebText()
 
     return outputText;
 }
-//获得含有坦克所有配件参数的文本
+//获得含有坦克所有配件参数文本块，存入allModulesText类属性里面
 void MainWindow::setAllModulesData(QString theWebText)
 {
     QString pattern=patterModulesData;
@@ -68,7 +79,9 @@ void MainWindow::setAllModulesData(QString theWebText)
         //qDebug()<<allModulesText;
     }
 }
-//获得一种模块的文本，然后调用setModuleData设置每个模块的参数
+//用table分割坦克不同模块
+//调用getAllMatchResults函数，把坦克的不同模块的文本放入QSet<QString>结构中
+//调用setModuleData设置坦克不同模块的类参数
 void MainWindow::setEveryModuleData()
 {
 
@@ -87,7 +100,7 @@ void MainWindow::setEveryModuleData()
     int i;
 }
 
-//把所给模块的参数填入相应的链表
+//把所给不同模块的参数填入相应的链表
 bool MainWindow::setModuleData(QString moduleText)
 {
     QDomDocument doc;
@@ -140,7 +153,7 @@ bool MainWindow::setModuleData(QString moduleText)
     }
     return true;
 }
-//把每个模块的文本放入QSet中
+//把坦克的每个模块的文本放入QSet<QString>中
 QSet<QString> MainWindow::getAllMatchResults(const QString text, const QString regexp)
 {
     QSet<QString> resultSet;
