@@ -14,8 +14,19 @@ QString SPLITEACHMODULEPATTERN = "<table class=\"t-modules\">.*</table>";
 
 QString TOPHPPATTERN = "\\d+(?=</span><span style=\"color:gray\"> HP</span> </span><span class=\"t-performance_left\"> Hit Points)";
 QString STOCKHPPATTERN="\\d+(?=</span><span class=\"top\">\\d+</span><span style=\"color:gray\"> HP</span> </span><span class=\"t-performance_left\"> Hit Points)";
-QString UPANGLEATTERN = "\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
-QString DOWNANGLEATTERN ="\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span>/\\+\\d+<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
+QString UPANGLEPATTERN = "\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
+QString DOWNANGLEPATTERN ="\\d*(,\\d{3})*(?=<span style=\"color:gray\">°</span>/\\+\\d+<span style=\"color:gray\">°</span></span> </span><span class=\"t-performance_left\"> Elevation Arc)";
+QString LEFTRIGHTANGLEPATTERN = "\\d*(?=<span style=\"color:gray\">°</span> </span><span class=\"t-performance_left\"> Gun Arc)";
+QString HULLARMORPATTERN = "\\d{1,3}/\\d{1,3}/\\d{1,3}(?=<span style=\"color:gray\"> mm</span> </span><span class=\"t-performance_left\"> Hull Armor)";
+QString TOPTURRETARMORPATTERN = "\\d{1,3}/\\d{1,3}/\\d{1,3}(?=</span><span style=\"color:gray\"> mm</span> </span><span class=\"t-performance_left\"> Turret Armor)";
+QString STOCKTURRETARMORPATTERN = "\\d{1,3}/\\d{1,3}/\\d{1,3}(?=</span><span class=\"top\">\\d{1,3}/\\d{1,3}/\\d{1,3}</span><span style=\"color:gray\"> mm</span> </span><span class=\"t-performance_left\"> Turret Armor)";
+QString GOLDCOSTPATTERN = "(?<=<p><span class=\"b-description-img_price b-description-img_price&#95;_gold\">)\\d{1,7}";
+QString SILVERCOSTPATTERN = "(?<=<p><span class=\"b-description-img_price\">)\\d{1,7}";
+QString STATIONCAMOUFLAGEPATTERN = "(?<=<ul class=\"b-standart-list\"><li>Stationary: )\\d{0,2}.*\\d{0,2}(?=%)";
+QString MOVINGCAMOUFLAGEPATTERN = "(?<=<li>When Moving: )\\d{0,2}.*\\d{0,2}(?=%)";
+QString FIRINGCAMOUFLAGEPATTERN = "(?<=<li>When Firing: )\\d{0,2}.*\\d{0,2}(?=%)";
+QString THRUSTWEIGHTRATIOPATTERN = "(?<=<span class=\"top\">)\\d{1,4}.*\\d{0,4}(?=</span><span style=\"color:gray\"> hp/t</span> </span><span class=\"t-performance_left\"> Power/Wt Ratio </span></td>)";
+QString SPEEDPATTERN = "\\d{1,4}/\\d{0,4}(?=<span style=\"color:gray\"> km/h</span> </span><span class=\"t-performance_left\"> Speed Limit)";
 //总的函数，负责从网上获得文本
 //
 void MainWindow::getDataFromWeb()
@@ -67,9 +78,9 @@ void MainWindow::setTankPara()
 
     }
     //获取坦克仰角
-    rx.setPattern(UPANGLEATTERN);
+    rx.setPattern(UPANGLEPATTERN);
     pos = webText.indexOf(rx);
-    qDebug()<<UPANGLEATTERN;
+    qDebug()<<UPANGLEPATTERN;
     QString up_angle;
     if(pos>=0)
     {
@@ -77,9 +88,9 @@ void MainWindow::setTankPara()
         up_angle = temp.takeFirst();
     }
     //获取坦克俯角
-    rx.setPattern(DOWNANGLEATTERN);
+    rx.setPattern(DOWNANGLEPATTERN);
     pos = webText.indexOf(rx);
-    qDebug()<<DOWNANGLEATTERN;
+    qDebug()<<DOWNANGLEPATTERN;
     QString down_angle;
     if(pos>=0)
     {
